@@ -164,6 +164,7 @@ export const useUserStore = defineStore({
         title: () => h('span', t('sys.app.logoutTip')),
         content: () => h('span', t('sys.app.logoutMessage')),
         onOk: async () => {
+          // 先关掉弹窗
           await this.logout(true);
         },
       });
