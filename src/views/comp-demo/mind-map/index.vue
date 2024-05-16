@@ -2,112 +2,306 @@
   <PageWrapper title="思维导图组件">
     <template #headerContent>
       <div class="flex justify-between items-center">
-        <span class="flex-1"> </span>
+        <span class="flex-1"><a-button type="" @click="doQuery">重置数据</a-button>
+          <a-button
+            type="primary"
+            @click="
+              addNodeByParentId([exampleData.nodeData], 'root', {
+                type: 'country',
+                name: '俄罗斯',
+                score: 80,
+              })
+            "
+            >点击新增俄罗斯</a-button
+          >
+          <a-button
+            type="primary"
+            @click="
+              editNodeById(exampleData.nodeData, '1-2', {
+                score: '100',
+              })
+            "
+            >点击修改上海的分数</a-button
+          >
+          <a-button type="danger" @click="deleteNodeById(exampleData.nodeData, '2-1')"
+            >点击删除广岛</a-button
+          > </span>
       </div>
     </template>
+    <div style="position: relative;">
+      <div class="how-to-use">
+        <div>通过 Tab 或 Enter 键增加子节点；</div>
+        <div>通过 Delete 键删除选中的节点以及子节点；</div>
+        <div>通过 双击编辑节点；</div>
+        <div>通过 鼠标滚轮 ＋ Shift 进行左右滚动；</div>
+        <div>通过 鼠标滚轮 进行上下滚动。</div>
+        
+      </div>
+      <tiny-mind-map
+        ref="mindmap"
+        class="demo-mind-map-event"
+        :options="options"
+        @create="onCreate"
+        @operation="onOperation"
+        v-model="exampleData"
+      />
+    </div>
 
-    <tiny-mind-map
-      class="demo-mind-map-export-date"
-      ref="mindmap"
-      @create="onCreate"
-      v-model="exampleData"
-    />
+    
   </PageWrapper>
 </template>
 
 <script setup>
   import { PageWrapper } from '/@/components/Page';
-  import { MindMap as TinyMindMap, Button as TinyButton, Modal } from '@opentiny/vue';
-  import { ref } from 'vue';
+  import { MindMap as TinyMindMap } from '@opentiny/vue';
+  import { ref, reactive, nextTick, createVNode, unref, onMounted, onUnmounted } from 'vue';
+  import { Modal } from 'ant-design-vue';
+  import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
-  const render = ref(null);
+  const { createMessage } = useMessage();
+
+  const getInitData = () => [
+    {
+      topic: '中国(100分)',
+      id: '1',
+      type: 'country',
+      name: '中国',
+      score: 100,
+      children: [
+        {
+          topic: '北京(100分)',
+          id: '1-1',
+          type: 'city',
+          name: '北京',
+          score: 100,
+        },
+        {
+          topic: '上海(99分)',
+          id: '1-2',
+          type: 'city',
+          name: '上海',
+          score: 99,
+        },
+      ],
+    },
+    {
+      topic: '日本(-100分)',
+      id: '2',
+      type: 'country',
+      name: '日本',
+      score: -100,
+      children: [
+        {
+          topic: '广岛(-100分)',
+          id: '2-1',
+          type: 'city',
+          name: '广岛',
+          score: -100,
+        },
+        {
+          topic: '长崎(-100分)',
+          id: '2-2',
+          type: 'city',
+          name: '长崎',
+          score: -100,
+        },
+      ],
+    },
+  ];
+
+  function doQuery() {
+    exampleData.value.nodeData.children = getInitData();
+  }
+
+  const mindmap = ref(null);
+  const D = ref(null);
+
+  const options = {
+    draggable: false,
+    editable: true,
+    keypress: false,
+  };
+
   const exampleData = ref({
     nodeData: {
       id: 'root',
       topic: '根节点',
+      type: 'root',
       root: true,
-      children: [
-        {
-          topic: '中国（100分）',
-          id: '1',
-          children: [
-            {
-              topic: '北京（100分）',
-              id: '1-1',
-            },
-            {
-              topic: '上海（100分）',
-              id: '1-2',
-            },
-          ],
-        },
-        {
-          topic: '日本（-100分）',
-          id: '2',
-          children: [
-            {
-              topic: '广岛（-100分）',
-              id: '2-1',
-            },
-            {
-              topic: '长崎（-100分）',
-              id: '2-2',
-            },
-          ],
-        },
-      ],
+      children: getInitData(),
     },
   });
-  const loading = ref(false);
-  const onCreate = (instance) => {
-    render.value = instance;
-  };
-  const exportData = () => {
-    if (render.value) {
-      Modal.message({ message: '数据已经输出于控制台, 请打开控制台查看', status: 'info' });
 
-      console.log(render.value.getData());
+  function bindKeyEvent(event) {
+    if (event.key === 'Tab' || event.key === 'Enter') {
+      addNode();
+    } else if (event.key === 'Delete') {
+      deleteNode();
     }
-  };
-  const importData = () => {
-    if (render.value) {
-      const fn = async () => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            if (render.value) {
-              render.value.init(exampleData.value);
-            }
-            resolve(null);
-          }, 1000);
+  }
+
+  onMounted(() => {
+    document.addEventListener('keydown', bindKeyEvent);
+  });
+
+  onUnmounted(() => {
+    document.removeEventListener('keydown', bindKeyEvent);
+  });
+
+  function addNode() {
+    let curr = getSelectedNode();
+    if (curr) {
+      let type = curr.type;
+      if (type == 'city') {
+        createMessage.error('不允许在这个节点下新增子节点');
+      } else {
+        handleAdd(curr);
+      }
+    }
+  }
+
+  function deleteNode() {
+    let curr = getSelectedNode();
+    if (curr) {
+      let type = curr.type;
+      if (type == 'root') {
+        createMessage.error('该节点不允许删除');
+      } else {
+        Modal.confirm({
+          content: '选中的节点和子节点会被删除，确定吗？',
+          icon: createVNode(ExclamationCircleOutlined),
+          async onOk() {
+            doDel(curr.id);
+          },
+          onCancel() {},
         });
+      }
+    }
+  }
+
+  function getSelectedNode() {
+    if (D && D.value && D.value.currentNode) {
+      return D.value.currentNode.nodeObj;
+    }
+    return null;
+  }
+
+  const onCreate = (e) => {
+    D.value = e;
+  };
+
+  // 编辑功能
+  const onOperation = ({ info, render }) => {
+    if (info.name == 'beginEdit') {
+      if (info.obj.type == 'root') {
+      } else {
+        handleEdit(info.obj);
+      }
+    }
+  };
+
+  // 新增
+  function handleAdd(node) {
+    // console.log(node.id, node.type)
+    createMessage.success(
+      `选中的是根节点，就是新增国家；选中的是国家，就是新增城市。弹出输入框，输入国家或城市、分数。调用接口在id为${node.id}的节点下新增节点，然后重新查询页面`,
+    );
+  }
+
+  /**编辑 */
+  function handleEdit(node) {
+    console.log(node);
+    createMessage.success(
+      `根据选中节点的类型弹出编辑框进行修改，调用修改的接口成功之后重新查询页面。`,
+    );
+  }
+
+  // 删除
+  async function doDel(id) {
+    createMessage.success(`调用接口删除id为${id}的数据，删除后重新查询页面`);
+  }
+
+  // 弹窗操作之后的回调
+  function handleSuccess() {
+    doQuery();
+  }
+
+  // 关键点在于：不使用组件自带的方法去对DOM进行改动，而是通过调用接口的方式去修改数据，再去更新数据，从而更新页面。
+
+  // 模拟后端删除接口
+  function deleteNodeById(parentNode, id) {
+    if (!parentNode || !parentNode.children) return false;
+    const node = parentNode.children.find((v) => v.id === id); // 根据id寻找到了节点
+    if (node) {
+      // 删除节点
+      parentNode.children = parentNode.children.filter((v) => v.id != id);
+      return true;
+    }
+    // 递归搜索子节点
+    for (let i = 0; i < parentNode.children.length; i++) {
+      if (deleteNodeById(parentNode.children[i], id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 模拟后端新增接口
+  function addNodeByParentId(parentNode, id, dataObj) {
+    if (!parentNode) return false;
+    const node = parentNode.find((v) => v.id === id); // 根据id寻找到了节点
+    if (node) {
+      // 新增子节点
+      node.children = (node.children || []).concat({
+        ...dataObj, // type: 'city',   name: '长崎', score: -100, id: 3
+        topic: `${dataObj.name}(${dataObj.score})`,
+        id: '3', // 后端生成的唯一值
+      });
+      return true;
+    }
+    // 递归搜索子节点
+    for (let i = 0; i < parentNode.children.length; i++) {
+      if (addNodeByParentId(parentNode.children[i], id, dataObj)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 模拟后端编辑接口
+  function editNodeById(parentNode, id, dataObj) {
+    if (!parentNode || !parentNode.children) return false;
+    const index = parentNode.children.findIndex((v) => v.id === id); // 根据id寻找到了节点
+    if (index !== -1) {
+      // 修改节点的数据
+      parentNode.children[index] = {
+        ...parentNode.children[index],
+        ...dataObj,
+        topic: `${parentNode.children[index].name}(${dataObj.score})`,
       };
-      loading.value = true;
-      fn().finally(() => (loading.value = false));
+      return true;
     }
-  };
-  const clearData = () => {
-    loading.value = true;
-    const clearNodeData = {
-      nodeData: {
-        id: 'c9ee6647385c42de',
-        topic: '我的子节点被清空啦~',
-        root: true,
-        children: [],
-      },
-    };
-    try {
-      render.value.init(clearNodeData);
-      render.value.refresh(clearNodeData);
-    } finally {
-      loading.value = false;
+    // 递归搜索子节点
+    for (let i = 0; i < parentNode.children.length; i++) {
+      if (editNodeById(parentNode.children[i], id, dataObj)) {
+        return true;
+      }
     }
-  };
+    return false;
+  }
 </script>
 
-<style scoped>
-  .demo-mind-map-export-date {
+<style lang="less" scoped>
+  .how-to-use {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    z-index: 999;
+    line-height: 20px;
+  }
+  .demo-mind-map-event {
     width: 100%;
-    height: 400px;
-    margin-top: 10px;
+    height: 800px;
   }
 </style>
