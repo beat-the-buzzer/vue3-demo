@@ -146,5 +146,10 @@
   "homepage": "https://github.com/anncwb/vue-vben-admin",
   "engines": {
     "node": "^12 || >=14"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@opentiny/vue-mind-map@3.16.0": "patches/@opentiny__vue-mind-map@3.16.0.patch"
+    }
   }
 }

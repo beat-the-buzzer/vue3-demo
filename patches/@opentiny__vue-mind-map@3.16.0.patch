@@ -1,0 +1,13 @@
+diff --git a/lib/pc.js b/lib/pc.js
+index 74ffd4c7fcb52800699622e7599dbe70721ca650..927e11afdae7422588ddbe16c1147814c92c5c77 100644
+--- a/lib/pc.js
++++ b/lib/pc.js
+@@ -2064,7 +2064,7 @@ var Pt = function Pt2(e, t, n) {
+ }, Gt = function Gt2(e) {
+   this.scaleVal = e, this.map.style.transform = "scale(" + e + ")";
+ }, Xt = function Xt2() {
+-  this.container.scrollTo(1e4 - this.container.offsetWidth / 2, 1e4 - this.container.offsetHeight / 2);
++  this.container.scrollTo(1e4 - this.container.offsetWidth / 5, 1e4 - this.container.offsetHeight / 2);
+ }, Jt = function Jt2(e) {
+   e(this);
+ }, Qt = function Qt2(e) {

@@ -8,6 +8,11 @@ overrides:
   bin-wrapper: npm:bin-wrapper-china
   rollup: ^2.56.3
 
+patchedDependencies:
+  '@opentiny/vue-mind-map@3.16.0':
+    hash: 73zx7xpatgblagxk7wmygsrcdu
+    path: patches/@opentiny__vue-mind-map@3.16.0.patch
+
 dependencies:
   '@ant-design/colors':
     specifier: ^6.0.0
@@ -3603,7 +3608,7 @@ packages:
       '@opentiny/vue-tooltip': 3.16.0
     dev: false
 
-  /@opentiny/vue-mind-map@3.16.0:
+  /@opentiny/vue-mind-map@3.16.0(patch_hash=73zx7xpatgblagxk7wmygsrcdu):
     resolution: {integrity: sha512-O+DEkdWeU1i3pYLGmgZchRnezxVVWdTsAU6GfEX+qDrSDdW42tlg1KJ6ZjQ1E0eDjQw3a8vpmduYkMd1KP2kAQ==}
     dependencies:
       '@opentiny/vue-common': 3.16.0
@@ -3611,6 +3616,7 @@ packages:
       '@opentiny/vue-theme': 3.16.0
       mind-elixir: 3.3.2
     dev: false
+    patched: true
 
   /@opentiny/vue-mini-picker@3.16.0:
     resolution: {integrity: sha512-FZ5qT1+W7tCmCkT3K6dCbH26p+FzqP+8jBhglZI1ojvPdX8tQRavNRbga1GBiigxcqLjXm+Y3OcCrPrfPtY8Kg==}
@@ -4750,7 +4756,7 @@ packages:
       '@opentiny/vue-menu': 3.16.0
       '@opentiny/vue-message': 3.16.0
       '@opentiny/vue-milestone': 3.16.0
-      '@opentiny/vue-mind-map': 3.16.0
+      '@opentiny/vue-mind-map': 3.16.0(patch_hash=73zx7xpatgblagxk7wmygsrcdu)
       '@opentiny/vue-mini-picker': 3.16.0
       '@opentiny/vue-modal': 3.16.0
       '@opentiny/vue-month-range': 3.16.0
