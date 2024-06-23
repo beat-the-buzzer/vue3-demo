@@ -4,24 +4,24 @@ import { LAYOUT } from '/@/router/constant';
 
 
 const dashboard: AppRouteModule = {
-  path: '/comp-demo',
-  name: 'CompDemo',
+  path: '/vue-demo',
+  name: 'VueDemo',
   component: LAYOUT,
-  redirect: '/comp-demo/mind-map',
+  redirect: '/vue-demo/watcher',
   meta: {
     // hideChildrenInMenu: true,
     // icon: 'simple-icons:about-dot-me',
-    title: '组件Demo',
+    title: 'Vue例子',
     // orderNo: 100000,
   },
   children: [
     {
-      path: 'mind-map',
-      name: 'MindMap',
-      component: () => import('/@/views/comp-demo/mind-map/index.vue'),
+      path: 'watcher',
+      name: 'Watcher',
+      component: () => import('/@/views/vue-demo/watcher/index.vue'),
       meta: {
-        title: '思维导图',
-        icon: 'simple-icons:about-dot-me',
+        title: '监听器',
+        // icon: 'simple-icons:about-dot-me',
         // hideMenu: true,
       },
     },
