@@ -25,6 +25,16 @@ const dashboard: AppRouteModule = {
         // hideMenu: true,
       },
     },
+    {
+      path: 'preview',
+      name: 'Preview',
+      component: () => import('/@/views/comp-demo/preview/index.vue'),
+      meta: {
+        title: '预览',
+        icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
   ],
 };
 

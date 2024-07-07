@@ -43,7 +43,9 @@
     "axios": "^0.24.0",
     "crypto-js": "^4.1.1",
     "echarts": "^5.2.2",
+    "highlight.js": "^11.10.0",
     "lodash-es": "^4.17.21",
+    "marked": "^13.0.2",
     "mockjs": "^1.1.0",
     "moment": "^2.29.1",
     "nprogress": "^0.2.0",
@@ -55,6 +57,7 @@
     "sortablejs": "^1.14.0",
     "vue": "^3.2.21",
     "vue-i18n": "^9.1.9",
+    "vue-pdf-embed": "1.2.1",
     "vue-router": "^4.0.12",
     "vue-types": "^4.1.1"
   },
