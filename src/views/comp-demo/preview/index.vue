@@ -8,7 +8,7 @@
         <markdown></markdown>
       </a-tab-pane>
       <a-tab-pane key="3" tab="zip">
-        zip预览组件
+        <zip></zip>
       </a-tab-pane>
     </a-tabs>
 
@@ -22,6 +22,7 @@ import { Input, Button, Tabs } from "ant-design-vue";
 import { ref, watch, watchEffect, computed, onMounted } from "vue";
 import markdown from './markdown.vue';
 import pdf from './pdf.vue'
+import zip from './zip.vue'
 import VuePdfEmbed from 'vue-pdf-embed'
 
 const ATabs = Tabs

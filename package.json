@@ -44,6 +44,7 @@
     "crypto-js": "^4.1.1",
     "echarts": "^5.2.2",
     "highlight.js": "^11.10.0",
+    "jszip": "^3.10.1",
     "lodash-es": "^4.17.21",
     "marked": "^13.0.2",
     "mockjs": "^1.1.0",
