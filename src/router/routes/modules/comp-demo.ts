@@ -35,6 +35,16 @@ const dashboard: AppRouteModule = {
         // hideMenu: true,
       },
     },
+    {
+      path: 'files',
+      name: 'Files',
+      component: () => import('/@/views/comp-demo/files/index.vue'),
+      meta: {
+        title: '前端文件',
+        icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
   ],
 };
 
