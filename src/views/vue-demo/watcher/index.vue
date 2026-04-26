@@ -171,16 +171,16 @@ watch(scoreInput, val => {
 // 如下面的代码是pageWrapper组件，getShowFooter.value控制了页面上的底部区域显示与否，redoHeight是重新计算了内容区域的高度。
 // 显然，我们需要在确定footer展示或隐藏了之后，才能计算内容区域的高度。
 
-watch(
-  () => [getShowFooter.value],
-  () => {
-    redoHeight();
-  },
-  {
-    flush: 'post',
-    immediate: true,
-  },
-);
+// watch(
+//   () => [getShowFooter.value],
+//   () => {
+//     redoHeight();
+//   },
+//   {
+//     flush: 'post',
+//     immediate: true,
+//   },
+// );
 
 </script>
 

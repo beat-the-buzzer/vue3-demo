@@ -3,7 +3,7 @@ import type { AppRouteModule } from '/@/router/types';
 import { LAYOUT } from '/@/router/constant';
 
 
-const dashboard: AppRouteModule = {
+const compDemo: AppRouteModule = {
   path: '/comp-demo',
   name: 'CompDemo',
   component: LAYOUT,
@@ -21,6 +21,16 @@ const dashboard: AppRouteModule = {
       component: () => import('/@/views/comp-demo/mind-map/index.vue'),
       meta: {
         title: '思维导图',
+        // icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
+    {
+      path: 'bpmn',
+      name: 'BPMN',
+      component: () => import('/@/views/comp-demo/bpmn/index.vue'),
+      meta: {
+        title: '流程图',
         // icon: 'simple-icons:about-dot-me',
         // hideMenu: true,
       },
@@ -46,7 +56,7 @@ const dashboard: AppRouteModule = {
       },
     },
     {
-      path: 'mergeCell',
+      path: 'merge-cell',
       name: 'mergeCell',
       component: () => import('/@/views/comp-demo/merge-cell/index.vue'),
       meta: {
@@ -55,7 +65,17 @@ const dashboard: AppRouteModule = {
         // hideMenu: true,
       },
     },
+    {
+      path: 'highcharts-3d-pie',
+      name: 'highcharts-3d-pie',
+      component: () => import('/@/views/comp-demo/highcharts-3d-pie/index.vue'),
+      meta: {
+        title: '3D饼图',
+        // icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
   ],
 };
 
-export default dashboard;
+export default compDemo;
