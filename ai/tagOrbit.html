@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>静态标签环绕展示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        .orbit-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .center-text {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            max-width: 80%;
+        }
+
+        /* 移除 animation 属性，保持静态 */
+        .orbit-tag {
+            position: absolute;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            opacity: 0.9;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .orbit-tag:hover {
+            transform: scale(1.1) !important; /* 覆盖JS设置的transform，仅保留缩放 */
+            z-index: 20;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-tags text-indigo-600 text-xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">TagOrbit (Static)</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        
+        <div class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800">标签环绕配置</h2>
+                    <p class="text-sm text-gray-500">已移除悬浮动画，标签将静止在轨道上</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex items-center gap-2">
+                        <label for="tagCount" class="text-sm text-gray-600">标签数量:</label>
+                        <input type="range" id="tagCount" min="5" max="30" value="15" class="w-32 accent-indigo-600">
+                        <span id="tagCountValue" class="text-sm font-mono text-indigo-600 w-6">15</span>
+                    </div>
+                    <button id="refreshBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> 重新生成
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden relative min-h-[500px] flex items-center justify-center" id="displayArea">
+            
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50 opacity-50"></div>
+            
+            <div class="center-text z-10 max-w-md">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">核心主题</h3>
+                <!-- <p class="text-gray-600 leading-relaxed">
+                    这是一个去除了动态悬浮效果的静态展示版本。标签固定在计算出的椭圆轨道位置上，仅在鼠标悬停时产生轻微的放大反馈。
+                </p> -->
+            </div>
+
+            <div id="tagsWrapper" class="absolute inset-0 pointer-events-none">
+                <!-- 标签将通过JS插入这里 -->
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+            <p class="text-gray-500 text-sm">&copy; 2026 TagOrbit Demo.</p>
+        </div>
+    </footer>
+
+    <script>
+        const tagData = [
+            "React", "Vue", "Angular", "Svelte", "Next.js", 
+            "Tailwind", "Bootstrap", "Sass", "Less", "Webpack",
+            "Vite", "Rollup", "TypeScript", "JavaScript", "HTML5",
+            "CSS3", "Node.js", "Express", "GraphQL", "REST API",
+            "Docker", "Kubernetes", "AWS", "Azure", "Git",
+            "CI/CD", "Jest", "Cypress", "Figma", "UI/UX"
+        ];
+
+        const colors = [
+            "bg-red-500", "bg-orange-500", "bg-amber-500", 
+            "bg-green-500", "bg-emerald-500", "bg-teal-500",
+            "bg-cyan-500", "bg-sky-500", "bg-blue-500", 
+            "bg-indigo-500", "bg-violet-500", "bg-purple-500", 
+            "bg-fuchsia-500", "bg-pink-500", "bg-rose-500"
+        ];
+
+        const tagsWrapper = document.getElementById('tagsWrapper');
+        const tagCountInput = document.getElementById('tagCount');
+        const tagCountValue = document.getElementById('tagCountValue');
+        const refreshBtn = document.getElementById('refreshBtn');
+
+        function init() {
+            renderTags(parseInt(tagCountInput.value));
+            
+            tagCountInput.addEventListener('input', (e) => {
+                tagCountValue.textContent = e.target.value;
+            });
+
+            tagCountInput.addEventListener('change', (e) => {
+                renderTags(parseInt(e.target.value));
+            });
+
+            refreshBtn.addEventListener('click', () => {
+                renderTags(parseInt(tagCountInput.value));
+            });
+        }
+
+        function renderTags(count) {
+            tagsWrapper.innerHTML = '';
+            
+            const selectedTags = [];
+            const tempData = [...tagData];
+            for(let i=0; i<count; i++) {
+                if(tempData.length === 0) break;
+                const randomIndex = Math.floor(Math.random() * tempData.length);
+                selectedTags.push(tempData[randomIndex]);
+                tempData.splice(randomIndex, 1);
+            }
+
+            const containerWidth = document.getElementById('displayArea').offsetWidth;
+            const containerHeight = document.getElementById('displayArea').offsetHeight;
+            const centerX = containerWidth / 2;
+            const centerY = containerHeight / 2;
+            
+            const radiusX = Math.min(containerWidth, containerHeight) * 0.4; 
+            const radiusY = Math.min(containerWidth, containerHeight) * 0.35;
+
+            selectedTags.forEach((tagText, index) => {
+                const tagEl = document.createElement('div');
+                
+                const colorClass = colors[Math.floor(Math.random() * colors.length)];
+                
+                tagEl.className = `orbit-tag ${colorClass} shadow-md pointer-events-auto`;
+                tagEl.textContent = tagText;
+                
+                const angle = (index / count) * 2 * Math.PI + (Math.random() * 0.5 - 0.25);
+                
+                const randomOffsetR = 0.8 + Math.random() * 0.4; 
+                const x = centerX + Math.cos(angle) * radiusX * randomOffsetR;
+                const y = centerY + Math.sin(angle) * radiusY * randomOffsetR;
+
+                tagEl.style.left = `${x}px`;
+                tagEl.style.top = `${y}px`;
+                
+                // 静态位置，不再添加 animation-delay
+                tagEl.style.transform = `translate(-50%, -50%)`;
+                
+                tagEl.addEventListener('click', () => {
+                    alert(`你点击了标签: ${tagText}`);
+                });
+
+                tagsWrapper.appendChild(tagEl);
+            });
+        }
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                renderTags(parseInt(tagCountInput.value));
+            }, 200);
+        });
+
+        init();
+    </script>
+</body>
+</html>

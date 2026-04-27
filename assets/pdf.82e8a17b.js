@@ -1,0 +1,1 @@
+import{a as e,o,i as s,n as t}from"./index.9716ca58.js";const n=t("embed",{src:"/resource/pdf/preview.pdf"},null,-1),r=[n],d=e({__name:"pdf",setup(a){return(c,_)=>(o(),s("div",null,r))}});export{d as default};
