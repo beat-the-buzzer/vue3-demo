@@ -3,7 +3,7 @@ import type { AppRouteModule } from '/@/router/types';
 import { LAYOUT } from '/@/router/constant';
 
 const IFrame = () => import('/@/views/sys/iframe/FrameBlank.vue')
-
+const publicPath = import.meta.env.VITE_PUBLIC_PATH || '/';
 
 const aiDemos: AppRouteModule = {
   path: '/ai-demo',
@@ -24,7 +24,7 @@ const aiDemos: AppRouteModule = {
       meta: {
         title: '九宫格指标',
         // icon: 'simple-icons:about-dot-me',
-        frameSrc: '/ai/nineTag.html'
+        frameSrc: `${publicPath}ai/nineTag.html`
       },
     },
     {
@@ -34,7 +34,7 @@ const aiDemos: AppRouteModule = {
       meta: {
         title: ' 标签环绕效果',
         // icon: 'simple-icons:about-dot-me',
-        frameSrc: '/ai/tagOrbit.html'
+        frameSrc: `${publicPath}ai/tagOrbit.html`
       },
     },
   ],
