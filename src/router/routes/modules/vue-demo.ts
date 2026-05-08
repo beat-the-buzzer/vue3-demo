@@ -25,6 +25,26 @@ const dashboard: AppRouteModule = {
         // hideMenu: true,
       },
     },
+    {
+      path: 'hooks',
+      name: 'hooks',
+      component: () => import('/@/views/vue-demo/hooks/index.vue'),
+      meta: {
+        title: 'hooks',
+        // icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
+    {
+      path: 'useful',
+      name: 'Useful',
+      component: () => import('/@/views/vue-demo/useful/index.vue'),
+      meta: {
+        title: 'vue有用的方法',
+        // icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
   ],
 };
 
