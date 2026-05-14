@@ -32,9 +32,19 @@ const aiDemos: AppRouteModule = {
       name: 'round',
       component: IFrame,
       meta: {
-        title: ' 标签环绕效果',
+        title: '标签环绕效果',
         // icon: 'simple-icons:about-dot-me',
         frameSrc: `${publicPath}ai/tagOrbit.html`
+      },
+    },
+    {
+      path: 'condition',
+      name: 'condition',
+      component: IFrame,
+      meta: {
+        title: '条件编辑器',
+        // icon: 'simple-icons:about-dot-me',
+        frameSrc: `${publicPath}ai/conditionEdit.html`
       },
     },
   ],

@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue + ElementUI 条件构建器</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .condition-group {
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .condition-group:hover {
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        .group-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ebeef5;
+        }
+        .group-content {
+            padding-left: 20px;
+            border-left: 2px solid #e4e7ed;
+            margin-left: 10px;
+        }
+        .condition-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .logic-tag {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .json-preview {
+            margin-top: 20px;
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s;
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <div class="header">
+            <h2><i class="el-icon-s-operation"> 高级条件构建器</h2>
+            <div>
+                <el-button type="primary" icon="el-icon-download" @click="exportJson">导出 JSON</el-button>
+                <el-button icon="el-icon-refresh" @click="reset">重置</el-button>
+            </div>
+        </div>
+
+        <el-card shadow="never">
+            <div slot="header" class="clearfix">
+                <span>规则配置 (支持两层嵌套)</span>
+            </div>
+            
+            <!-- 根节点容器 -->
+            <condition-group 
+                :model="ruleData" 
+                :depth="1" 
+                @update="saveToLocal"
+            ></condition-group>
+
+        </el-card>
+
+        <div class="json-preview">
+            <div style="color: #98c379; margin-bottom: 10px;">// 实时数据预览</div>
+            {{ jsonOutput }}
+        </div>
+    </div>
+
+    <!-- 引入 Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- 引入 Element UI JS -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+        // 定义递归组件
+        Vue.component('condition-group', {
+            name: 'ConditionGroup',
+            props: {
+                model: {
+                    type: Object,
+                    required: true
+                },
+                depth: {
+                    type: Number,
+                    default: 1
+                }
+            },
+            template: `
+                <div class="condition-group">
+                    <div class="group-header">
+                        <el-tag 
+                            :type="logicTypeColor" 
+                            effect="dark" 
+                            class="logic-tag"
+                            @click="toggleLogic"
+                        >
+                            {{ model.logic }}
+                        </el-tag>
+                        <span class="el-icon-caret-right" style="margin-right: 10px; color: #909399;"></span>
+                        <span style="font-size: 12px; color: #909399;">组内关系</span>
+                        
+                        <div style="flex-grow: 1;"></div>
+
+                        <el-button-group size="mini">
+                            <el-button type="primary" icon="el-icon-plus" @click="addCondition">添加条件</el-button>
+                            <el-button 
+                                v-if="depth < 2" 
+                                type="success" 
+                                icon="el-icon-folder-add" 
+                                @click="addGroup"
+                            >添加子组</el-button>
+                            <el-button 
+                                v-if="depth > 1" 
+                                type="danger" 
+                                icon="el-icon-delete" 
+                                @click="deleteSelf"
+                            >删除组</el-button>
+                        </el-button-group>
+                    </div>
+
+                    <div class="group-content">
+                        <transition-group name="fade">
+                            <div v-for="(item, index) in model.children" :key="item.id">
+                                <!-- 如果是条件 -->
+                                <div v-if="item.type === 'condition'" class="condition-row">
+                                    <el-select v-model="item.field" placeholder="字段" style="width: 150px;" size="small">
+                                        <el-option label="姓名" value="name"></el-option>
+                                        <el-option label="年龄" value="age"></el-option>
+                                        <el-option label="邮箱" value="email"></el-option>
+                                        <el-option label="状态" value="status"></el-option>
+                                    </el-select>
+                                    
+                                    <el-select v-model="item.operator" placeholder="运算符" style="width: 120px;" size="small">
+                                        <el-option label="等于" value="eq"></el-option>
+                                        <el-option label="不等于" value="neq"></el-option>
+                                        <el-option label="包含" value="contains"></el-option>
+                                        <el-option label="大于" value="gt"></el-option>
+                                        <el-option label="小于" value="lt"></el-option>
+                                    </el-select>
+                                    
+                                    <el-input 
+                                        v-model="item.value" 
+                                        placeholder="输入值" 
+                                        style="width: 200px;" 
+                                        size="small"
+                                        clearable
+                                    ></el-input>
+
+                                    <el-button 
+                                        type="text" 
+                                        icon="el-icon-close" 
+                                        style="color: #909399;" 
+                                        @click="removeItem(index)"
+                                    ></el-button>
+                                </div>
+
+                                <!-- 如果是子组，递归调用 -->
+                                <condition-group 
+                                    v-else 
+                                    :model="item" 
+                                    :depth="depth + 1"
+                                    @update="$emit('update')"
+                                ></condition-group>
+                            </div>
+                        </transition-group>
+                        
+                        <div v-if="model.children.length === 0" style="text-align: center; color: #c0c4cc; padding: 10px; font-size: 12px;">
+                            暂无条件，请添加
+                        </div>
+                    </div>
+                </div>
+            `,
+            computed: {
+                logicTypeColor() {
+                    if (this.model.logic === 'AND') return 'primary';
+                    if (this.model.logic === 'OR') return 'warning';
+                    if (this.model.logic === 'NOT') return 'danger';
+                    return 'info';
+                }
+            },
+            methods: {
+                toggleLogic() {
+                    const logics = ['AND', 'OR', 'NOT'];
+                    const currentIndex = logics.indexOf(this.model.logic);
+                    const nextIndex = (currentIndex + 1) % logics.length;
+                    this.model.logic = logics[nextIndex];
+                    this.$emit('update');
+                },
+                addCondition() {
+                    this.model.children.push({
+                        id: Date.now() + Math.random(),
+                        type: 'condition',
+                        field: '',
+                        operator: 'eq',
+                        value: ''
+                    });
+                    this.$emit('update');
+                },
+                addGroup() {
+                    this.model.children.push({
+                        id: Date.now() + Math.random(),
+                        type: 'group',
+                        logic: 'AND',
+                        children: []
+                    });
+                    this.$emit('update');
+                },
+                removeItem(index) {
+                    this.model.children.splice(index, 1);
+                    this.$emit('update');
+                },
+                deleteSelf() {
+                    // 这个事件需要由父组件处理，但在递归组件中，我们通常通过修改数据模型来触发响应式更新
+                    // 这里为了简化，我们在父级遍历删除，或者通过事件总线。
+                    // 更简单的做法：由于是引用传递，我们无法直接在这里删除自己。
+                    // 我们需要找到父级的children数组。
+                    // 改进方案：不直接删除DOM，而是让父组件渲染列表时控制。
+                    // 但为了保持组件独立性，我们使用 $parent 查找并删除（不推荐生产环境，但演示可用）
+                    // 或者更好的方式： emit 一个 delete 事件带上自己的 ID，让根组件去递归删除。
+                    
+                    this.$emit('delete-node', this.model.id);
+                }
+            },
+            created() {
+                // 监听删除事件，向上传递
+                this.$on('delete-node', (id) => {
+                    this.$emit('delete-node', id);
+                });
+            }
+        });
+
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    ruleData: {
+                        id: 'root',
+                        type: 'group',
+                        logic: 'AND',
+                        children: [
+                            {
+                                id: 1,
+                                type: 'condition',
+                                field: 'name',
+                                operator: 'eq',
+                                value: ''
+                            }
+                        ]
+                    }
+                };
+            },
+            computed: {
+                jsonOutput() {
+                    return JSON.stringify(this.cleanData(this.ruleData), null, 2);
+                }
+            },
+            mounted() {
+                this.loadFromLocal();
+                // 监听根节点的删除事件（虽然根节点不能被删除，但子节点删除事件会冒泡上来）
+                this.$on('delete-node', (id) => {
+                    this.deleteNodeById(this.ruleData, id);
+                    this.saveToLocal();
+                });
+            },
+            methods: {
+                // 清理数据用于展示（移除内部ID等）
+                cleanData(node) {
+                    const res = {
+                        logic: node.logic,
+                        type: node.type
+                    };
+                    if (node.type === 'group') {
+                        res.rules = node.children.map(child => this.cleanData(child));
+                    } else {
+                        res.field = node.field;
+                        res.operator = node.operator;
+                        res.value = node.value;
+                    }
+                    return res;
+                },
+                saveToLocal() {
+                    localStorage.setItem('conditionBuilderData', JSON.stringify(this.ruleData));
+                },
+                loadFromLocal() {
+                    const saved = localStorage.getItem('conditionBuilderData');
+                    if (saved) {
+                        try {
+                            this.ruleData = JSON.parse(saved);
+                        } catch (e) {
+                            console.error('加载本地数据失败', e);
+                        }
+                    }
+                },
+                reset() {
+                    this.$confirm('确定要重置所有条件吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.ruleData = {
+                            id: 'root',
+                            type: 'group',
+                            logic: 'AND',
+                            children: [
+                                {
+                                    id: Date.now(),
+                                    type: 'condition',
+                                    field: '',
+                                    operator: 'eq',
+                                    value: ''
+                                }
+                            ]
+                        };
+                        this.saveToLocal();
+                        this.$message({
+                            type: 'success',
+                            message: '重置成功!'
+                        });
+                    }).catch(() => {});
+                },
+                exportJson() {
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(this.jsonOutput);
+                    const downloadAnchorNode = document.createElement('a');
+                    downloadAnchorNode.setAttribute("href",     dataStr);
+                    downloadAnchorNode.setAttribute("download", "conditions.json");
+                    document.body.appendChild(downloadAnchorNode); // required for firefox
+                    downloadAnchorNode.click();
+                    downloadAnchorNode.remove();
+                },
+                // 递归删除节点
+                deleteNodeById(node, id) {
+                    if (node.type === 'group') {
+                        const index = node.children.findIndex(child => child.id === id);
+                        if (index !== -1) {
+                            node.children.splice(index, 1);
+                            return true;
+                        }
+                        // 如果没找到，继续深入子组
+                        for (let child of node.children) {
+                            if (child.type === 'group') {
+                                if (this.deleteNodeById(child, id)) return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

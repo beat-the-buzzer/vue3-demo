@@ -16,7 +16,7 @@
 import { PageWrapper } from '/@/components/Page';
 import { Button } from "ant-design-vue";
 import UploadPreviewModal from '/@/components/Upload/src/UploadPreviewModal.vue';
-import { ref } from "vue";
+import { ref, markRaw } from "vue";
 import filePreview from './filePreview.vue'
 const AButton = Button;
 import { useModal } from '/@/components/Modal';
