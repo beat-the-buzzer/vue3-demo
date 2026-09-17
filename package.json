@@ -35,8 +35,10 @@
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
     "@ant-design/icons-vue": "^6.0.1",
+    "@antv/x6": "^2.17.1",
+    "@antv/x6-vue-shape": "^2.1.2",
     "@iconify/iconify": "^2.0.4",
-    "@opentiny/vue": "3",
+    "@opentiny/vue": "3.16.0",
     "@vueuse/core": "^6.7.4",
     "@vueuse/shared": "^6.7.4",
     "@zxcvbn-ts/core": "^1.0.0-beta.0",
@@ -64,7 +66,7 @@
     "vue": "^3.2.21",
     "vue-i18n": "^9.1.9",
     "vue-pdf-embed": "1.2.1",
-    "vue-router": "^4.0.12",
+    "vue-router": "4.0.12",
     "vue-types": "^4.1.1"
   },
   "devDependencies": {

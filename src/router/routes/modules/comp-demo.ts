@@ -36,6 +36,16 @@ const compDemo: AppRouteModule = {
       },
     },
     {
+      path: 'highcharts-3d-pie',
+      name: 'highcharts-3d-pie',
+      component: () => import('/@/views/comp-demo/highcharts-3d-pie/index.vue'),
+      meta: {
+        title: '3D饼图',
+        // icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
+    {
       path: 'preview',
       name: 'Preview',
       component: () => import('/@/views/comp-demo/preview/index.vue'),
@@ -65,16 +75,7 @@ const compDemo: AppRouteModule = {
         // hideMenu: true,
       },
     },
-    {
-      path: 'highcharts-3d-pie',
-      name: 'highcharts-3d-pie',
-      component: () => import('/@/views/comp-demo/highcharts-3d-pie/index.vue'),
-      meta: {
-        title: '3D饼图',
-        // icon: 'simple-icons:about-dot-me',
-        // hideMenu: true,
-      },
-    },
+    
   ],
 };
 
