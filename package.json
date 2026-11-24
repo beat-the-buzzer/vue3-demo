@@ -7,7 +7,7 @@
     "url": "https://github.com/anncwb"
   },
   "scripts": {
-    "bootstrap": "yarn install",
+    "bootstrap": "pnpm install",
     "serve": "npm run dev",
     "dev": "vite",
     "deploy": "git subtree push --prefix=dist origin gh-pages",
@@ -61,6 +61,7 @@
     "pinia": "2.0.0",
     "qrcode": "^1.4.4",
     "qs": "^6.10.1",
+    "raychart": "^1.0.2",
     "resize-observer-polyfill": "^1.5.1",
     "sortablejs": "^1.14.0",
     "vue": "^3.2.21",

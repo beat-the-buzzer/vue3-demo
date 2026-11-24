@@ -46,6 +46,16 @@ const compDemo: AppRouteModule = {
       },
     },
     {
+      path: 'raychart',
+      name: 'raychart',
+      component: () => import('/@/views/comp-demo/raychart/index.vue'),
+      meta: {
+        title: 'raychart 3D',
+        // icon: 'simple-icons:about-dot-me',
+        // hideMenu: true,
+      },
+    },
+    {
       path: 'preview',
       name: 'Preview',
       component: () => import('/@/views/comp-demo/preview/index.vue'),
